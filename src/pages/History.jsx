@@ -49,7 +49,9 @@ export default function History() {
     }
   }, [currentUser])
 
-  const sessions     = allSessions.slice().reverse()
+  // Render sessions oldest→newest so new sessions append at the bottom
+  // (prevents the page from jumping when a new session is added)
+  const sessions     = allSessions.slice()
   const chartSessions = allSessions.slice(-14)
 
   const stats = useMemo(() => {
@@ -71,9 +73,9 @@ export default function History() {
   const isEmpty = !loading && sessions.length === 0
 
   return (
-    <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
+    <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4 mt-56">
       {/* Header with history image */}
-      <div className="flex items-center justify-between w-full max-w-4xl mb-4">
+      <div className="relative flex items-center justify-center w-full max-w-4xl mb-4 mx-auto">
         <img
           src={historyImage}
           alt="History & Stats"
@@ -82,7 +84,7 @@ export default function History() {
         {!isEmpty && !loading && (
           <button
             onClick={handleClear}
-            className="text-xs text-red-400 hover:text-red-600 transition-colors"
+            className="absolute right-0 text-xs text-red-400 hover:text-red-600 transition-colors"
           >
             Clear all data
           </button>
@@ -96,7 +98,7 @@ export default function History() {
       ) : isEmpty ? (
         <EmptyState />
       ) : (
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl mx-auto">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard label="Sessions" value={stats.count} />
             <StatCard label="Avg Score" value={`${stats.avgScore}`} unit="/100" accent={getScoreVariant(stats.avgScore)} />

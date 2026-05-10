@@ -69,6 +69,34 @@ export default function Leaderboard() {
     return () => { unsubscribe(); unsubGlobal && unsubGlobal() }
   }, [currentUser])
 
+  // Scroll the leaderboard into view on mount (so nav -> page shows at top)
+  useEffect(() => {
+    const navbar = document.querySelector('.app-navbar')
+    const navHeight = navbar ? navbar.offsetHeight : 96
+
+    let attempts = 0
+    const maxAttempts = 12
+    const retryMs = 80
+
+    function tryScroll() {
+      const el = document.getElementById('leaderboard')
+      if (el) {
+        const targetScroll = el.offsetTop - navHeight - 10
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
+        return true
+      }
+      return false
+    }
+
+    const id = setInterval(() => {
+      attempts += 1
+      if (tryScroll() || attempts >= maxAttempts) clearInterval(id)
+    }, retryMs)
+
+    setTimeout(tryScroll, 120)
+    return () => clearInterval(id)
+  }, [])
+
   async function handleAdd(user) {
     setActionLoading(user.uid)
     setError(null)
@@ -151,7 +179,7 @@ export default function Leaderboard() {
   }, [globalUsers, search, currentUser])
 
   return (
-    <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
+    <div id="leaderboard" className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
       {/* Header with leaderboard image */}
       <div className="flex flex-col items-center gap-2 w-full max-w-4xl mb-4">
         <img
