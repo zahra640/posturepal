@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import { getSessions, clearSessions } from '@/services/storageService'
+import { useAuth } from '@/context/AuthContext'
 import { getScoreVariant, getScoreLabel, rollingAverage } from '@/utils/scoring'
 import { formatTimestamp, formatDuration } from '@/utils/formatters'
 
@@ -16,33 +17,45 @@ function scoreColor(score) {
 }
 
 export default function History() {
-  // Re-read on every render so clearing refreshes immediately
-  const sessions = getSessions().slice().reverse() // newest first
+  const { currentUser } = useAuth()
+  const [allSessions, setAllSessions] = useState([])
+  const [loading, setLoading]         = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    getSessions()
+      .then(setAllSessions)
+      .finally(() => setLoading(false))
+  }, [currentUser])
+
+  const sessions     = allSessions.slice().reverse()
+  const chartSessions = allSessions.slice(-14)
 
   const stats = useMemo(() => {
-    const all = getSessions()
-    if (!all.length) return null
-    const totalSecs = all.reduce((acc, s) => acc + sessionDurationSecs(s), 0)
+    if (!allSessions.length) return null
+    const totalSecs = allSessions.reduce((acc, s) => acc + sessionDurationSecs(s), 0)
     return {
-      count:     all.length,
-      avgScore:  rollingAverage(all.map((s) => s.avgScore)),
-      bestScore: Math.max(...all.map((s) => s.avgScore)),
+      count:     allSessions.length,
+      avgScore:  rollingAverage(allSessions.map((s) => s.avgScore)),
+      bestScore: Math.max(...allSessions.map((s) => s.avgScore)),
       totalTime: formatDuration(totalSecs),
     }
-  }, [sessions.length]) // recalc when count changes
+  }, [allSessions])
 
-  // Last 14 sessions for the chart, chronological order
-  const chartSessions = getSessions().slice(-14)
+  async function handleClear() {
+    await clearSessions()
+    setAllSessions([])
+  }
 
-  const isEmpty = sessions.length === 0
+  const isEmpty = !loading && sessions.length === 0
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">History & Stats</h1>
-        {!isEmpty && (
+        {!isEmpty && !loading && (
           <button
-            onClick={() => { clearSessions(); window.location.reload() }}
+            onClick={handleClear}
             className="text-xs text-red-400 hover:text-red-600 transition-colors"
           >
             Clear all data
@@ -50,11 +63,14 @@ export default function History() {
         )}
       </div>
 
-      {isEmpty ? (
+      {loading ? (
+        <Card>
+          <p className="text-gray-400 text-sm text-center py-8">Loading…</p>
+        </Card>
+      ) : isEmpty ? (
         <EmptyState />
       ) : (
         <>
-          {/* Summary stats */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard label="Sessions" value={stats.count} />
             <StatCard label="Avg Score" value={`${stats.avgScore}`} unit="/100" accent={getScoreVariant(stats.avgScore)} />
@@ -62,13 +78,11 @@ export default function History() {
             <StatCard label="Total Time" value={stats.totalTime} />
           </div>
 
-          {/* Score trend chart */}
           <Card title={`Score Trend — last ${chartSessions.length} sessions`}>
             <div className="flex items-end gap-1.5 h-32">
               {chartSessions.map((s) => (
                 <div key={s.id} className="flex-1 flex flex-col items-center gap-1 group">
                   <div className="relative w-full flex flex-col justify-end" style={{ height: '100px' }}>
-                    {/* Tooltip */}
                     <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                       {s.avgScore}
                     </div>
@@ -83,29 +97,21 @@ export default function History() {
                 </div>
               ))}
             </div>
-            {/* Score axis labels */}
             <div className="flex justify-between text-[10px] text-gray-300 mt-1">
-              <span>0</span>
-              <span>50</span>
-              <span>100</span>
+              <span>0</span><span>50</span><span>100</span>
             </div>
           </Card>
 
-          {/* Session list */}
           <Card title="Session Log">
             <div className="flex flex-col divide-y divide-gray-100">
               {sessions.map((s) => {
-                const variant = getScoreVariant(s.avgScore)
+                const variant  = getScoreVariant(s.avgScore)
                 const duration = sessionDurationSecs(s)
                 return (
                   <div key={s.id} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                     <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-gray-800">
-                        {formatTimestamp(s.startedAt)}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        Duration: {formatDuration(duration)}
-                      </span>
+                      <span className="text-sm font-medium text-gray-800">{formatTimestamp(s.startedAt)}</span>
+                      <span className="text-xs text-gray-400">Duration: {formatDuration(duration)}</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="text-lg font-bold text-gray-800">{s.avgScore}</span>
@@ -147,7 +153,7 @@ function EmptyState() {
         <div className="text-5xl">📊</div>
         <p className="text-gray-700 font-semibold">No sessions yet</p>
         <p className="text-sm text-gray-400 max-w-xs">
-          Start tracking your posture on the Dashboard. Your history and stats will appear here after your first session.
+          Start tracking your posture on the Dashboard. Your history will appear here after your first session.
         </p>
       </div>
     </Card>
