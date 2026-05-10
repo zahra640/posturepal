@@ -15,24 +15,25 @@ function ProtectedRoute({ children }) {
 }
 
 function AppRoutes() {
+  const protectedPaths = ['/', '/dashboard', '/history', '/leaderboard', '/settings']
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Home />} />
-        <Route path="dashboard"   element={<Dashboard />} />
-        <Route path="history"     element={<History />} />
-        <Route path="leaderboard" element={<Leaderboard />} />
-        <Route path="settings"    element={<Settings />} />
-        <Route path="*"           element={<NotFound />} />
-      </Route>
+
+      {protectedPaths.map((p) => (
+        <Route
+          key={p}
+          path={p}
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        />
+      ))}
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   )
 }

@@ -150,7 +150,6 @@ export default function Leaderboard() {
           alt="Leaderboard"
           className="h-16 sm:h-20 w-auto object-contain"
         />
-        <p className="text-sm text-amber-700 text-center">Average posture score across all sessions</p>
       </div>
 
       {/* Tabs */}

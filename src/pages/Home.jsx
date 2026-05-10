@@ -5,7 +5,7 @@ import ScrollArrow from '@/components/layout/ScrollArrow'
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center text-center gap-6 min-h-[calc(100vh-6rem)] px-4">
+    <div id="home" className="flex flex-col items-center justify-center text-center gap-6 min-h-[calc(100vh-6rem)] px-4">
       <img
         src={logo}
         alt="PosturePal"
@@ -13,11 +13,11 @@ export default function Home() {
       />
 
       <h2 className="hero-title text-3xl sm:text-4xl font-semibold text-[rgb(219,173,7)] mt-0 leading-tight">
-        Sit Smarter, Feel Better
+        Sit Smarter. Feel Better
       </h2>
       
       <div className="flex flex-col items-center gap-4 justify-center mt-6">
-        <ScrollArrow to="/dashboard" label="Go to Detector" />
+        <ScrollArrow to="/dashboard#detector" label="Go to Detector" />
       </div>
     </div>
   )
