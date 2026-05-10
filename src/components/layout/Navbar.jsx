@@ -31,7 +31,7 @@ export default function Navbar() {
           <img
             src={pal}
             alt="PosturePal"
-            className="h-14 sm:h-16 w-auto max-w-[180px] object-contain rounded-lg shrink-0 mr-4 sm:mr-6"
+            className="h-14 sm:h-16 w-auto max-w-[180px] object-contain rounded-lg shrink-0 mr-4 sm:mr-6 -ml-2 sm:-ml-4"
           />
           <span className="sr-only">PosturePal</span>
         </div>
