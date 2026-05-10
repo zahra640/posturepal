@@ -1,4 +1,5 @@
-import { Pose } from '@mediapipe/pose'
+// MediaPipe Pose is loaded via CDN script tag in index.html (window.Pose)
+// This avoids Vite's ESM transform failing on MediaPipe's IIFE bundle.
 
 let poseInstance = null
 
@@ -8,9 +9,9 @@ export async function initPose(onResults) {
     poseInstance = null
   }
 
-  const pose = new Pose({
+  const pose = new window.Pose({
     locateFile: (file) =>
-      `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`,
+      `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
   })
 
   pose.setOptions({
