@@ -11,8 +11,8 @@ function sessionDurationSecs(s) {
 }
 
 function scoreColor(score) {
-  if (score >= 75) return 'bg-green-400'
-  if (score >= 50) return 'bg-amber-400'
+  if (score >= 75) return 'bg-amber-400'
+  if (score >= 50) return 'bg-amber-300'
   return 'bg-red-400'
 }
 
@@ -153,7 +153,7 @@ function EmptyState() {
         <div className="text-5xl">📊</div>
         <p className="text-gray-700 font-semibold">No sessions yet</p>
         <p className="text-sm text-gray-400 max-w-xs">
-          Start tracking your posture on the Dashboard. Your history will appear here after your first session.
+          Start tracking your posture on the Detector. Your history will appear here after your first session.
         </p>
       </div>
     </Card>

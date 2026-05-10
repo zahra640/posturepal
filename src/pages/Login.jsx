@@ -46,10 +46,10 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4">
+    <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center px-4">
       <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-brand-600">PosturePal</h1>
-        <p className="text-gray-500 text-sm mt-1">Sit better. Feel better.</p>
+        <h1 className="text-3xl font-bold text-amber-700">PosturePal</h1>
+        <p className="text-amber-600 text-sm mt-1">Sit better. Feel better.</p>
       </div>
 
       <Card className="w-full max-w-sm">
