@@ -7,6 +7,7 @@ import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
 import Button from '@/components/ui/Button'
 import { getScoreVariant, getScoreLabel } from '@/utils/scoring'
+import leaderboardImage from '../../images/leaderboard.png'
 
 const medals = ['🥇', '🥈', '🥉']
 
@@ -141,14 +142,19 @@ export default function Leaderboard() {
   }, [globalUsers, search, currentUser])
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Leaderboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Average posture score across all sessions</p>
+    <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
+      {/* Header with leaderboard image */}
+      <div className="flex flex-col items-center gap-2 w-full max-w-4xl mb-4">
+        <img
+          src={leaderboardImage}
+          alt="Leaderboard"
+          className="h-16 sm:h-20 w-auto object-contain"
+        />
+        <p className="text-sm text-amber-700 text-center">Average posture score across all sessions</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit max-w-4xl">
         {['friends', 'global'].map((t) => (
           <button
             key={t}

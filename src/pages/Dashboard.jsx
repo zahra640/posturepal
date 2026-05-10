@@ -7,6 +7,7 @@ import { usePosture } from '@/hooks/usePosture'
 import { formatDuration } from '@/utils/formatters'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import detectorImage from '../../images/detector.png'
 
 export default function Dashboard() {
   const {
@@ -26,19 +27,36 @@ export default function Dashboard() {
   const location = useLocation()
 
   useEffect(() => {
-    if (location.hash === '#detector') {
+    // Scroll to detector on mount or hash change
+    const scrollToDetector = () => {
       const el = document.getElementById('detector')
-      if (el) el.scrollIntoView({ behavior: 'smooth' })
-      else window.scrollTo({ top: 0, behavior: 'smooth' })
+      const navbar = document.querySelector('.app-navbar')
+      const navHeight = navbar ? navbar.offsetHeight : 96
+      
+      if (el) {
+        // Scroll so element appears below navbar with padding
+        const targetScroll = el.offsetTop - navHeight - 30
+        window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
+      } else {
+        // If element not found yet, scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
     }
-  }, [location.hash])
+    
+    // Always scroll on mount (in case coming from home page)
+    setTimeout(scrollToDetector, 200)
+  }, [])
 
   return (
-    <div id="detector" className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Detector</h1>
-        <div className="flex items-center gap-2">
+    <div id="detector" className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
+      {/* Header with detector image */}
+      <div className="flex flex-col items-center gap-4 w-full max-w-4xl">
+        <img
+          src={detectorImage}
+          alt="Detector"
+          className="h-16 sm:h-20 w-auto object-contain"
+        />
+        <div className="flex items-center gap-2 justify-center flex-wrap">
           {!landmarks && (
             <span className="text-xs text-amber-500">Waiting for pose detection…</span>
           )}
@@ -58,7 +76,7 @@ export default function Dashboard() {
 
       {/* Calibration prompt */}
       {!isCalibrated && (
-        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 w-full max-w-2xl mx-auto">
           <span className="text-amber-500 text-xl mt-0.5">💡</span>
           <div>
             <p className="text-amber-900 font-semibold text-sm">Calibrate first</p>
@@ -73,7 +91,7 @@ export default function Dashboard() {
       {alert && <AlertBanner message={alert} onDismiss={dismissAlert} />}
 
       {/* Main grid: camera left, stats right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-4xl mx-auto">
         {/* Camera feed with landmark overlay */}
         <div className="lg:col-span-2">
           <CameraView onPoseResults={handlePoseResults} />
@@ -110,7 +128,7 @@ export default function Dashboard() {
       </div>
 
       {/* Landmark legend */}
-      <Card title="Landmark Guide">
+      <Card title="Landmark Guide" className="w-full max-w-4xl mx-auto">
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
           <LegendItem color="#f59e0b" label="Nose" />
           <LegendItem color="#fcd34d" label="Ears" />
