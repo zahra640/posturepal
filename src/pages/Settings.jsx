@@ -5,25 +5,48 @@ import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { DEFAULT_SETTINGS } from '@/data/constants'
 import settingsImage from '../../images/settings.png'
 
+const notifSupported = 'Notification' in window
+
 export default function Settings() {
   const [settings, setSettings] = useLocalStorage('posturepal_settings', DEFAULT_SETTINGS)
   const [saved, setSaved] = useState(false)
+  const [notifBlocked, setNotifBlocked] = useState(false)
 
   function handleChange(key, value) {
     setSettings(prev => ({ ...prev, [key]: value }))
     setSaved(false)
   }
 
+  async function handleNotifToggle(enabled) {
+    if (!enabled) {
+      handleChange('pushNotifications', false)
+      setNotifBlocked(false)
+      return
+    }
+
+    if (Notification.permission === 'granted') {
+      handleChange('pushNotifications', true)
+      new Notification('Lock In', { body: 'Popup notifications are enabled!', icon: '/pal.PNG' })
+    } else if (Notification.permission === 'denied') {
+      setNotifBlocked(true)
+    } else {
+      const result = await Notification.requestPermission()
+      if (result === 'granted') {
+        handleChange('pushNotifications', true)
+        new Notification('Lock In', { body: 'Popup notifications are enabled!', icon: '/pal.PNG' })
+      } else {
+        setNotifBlocked(true)
+      }
+    }
+  }
+
   function handleSave() {
-    // Settings are already persisted via useLocalStorage on every change.
-    // This button exists for UX feedback only.
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
   }
 
   return (
     <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
-      {/* Header with settings image */}
       <img
         src={settingsImage}
         alt="Settings"
@@ -45,28 +68,38 @@ export default function Settings() {
             />
           </label>
 
-          <label className="flex items-center gap-3 text-sm text-gray-600">
-            <input
-              type="checkbox"
-              checked={settings.soundAlerts}
-              onChange={e => handleChange('soundAlerts', e.target.checked)}
-              className="accent-brand-500 w-4 h-4"
-            />
-            Enable sound alerts
-          </label>
-        </Card>
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center gap-3 text-sm text-gray-600">
+              <input
+                type="checkbox"
+                checked={settings.soundAlerts}
+                onChange={e => handleChange('soundAlerts', e.target.checked)}
+                className="accent-brand-500 w-4 h-4"
+              />
+              Enable sound alerts
+            </label>
 
-        <Card title="Session">
-          <label className="block text-sm text-gray-600">
-            Reminder interval (minutes): <strong>{settings.reminderInterval}</strong>
-            <input
-              type="range"
-              min={5} max={60} step={5}
-              value={settings.reminderInterval}
-              onChange={e => handleChange('reminderInterval', Number(e.target.value))}
-              className="w-full mt-1 accent-brand-500"
-            />
-          </label>
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center gap-3 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={settings.pushNotifications && Notification.permission === 'granted'}
+                  onChange={e => handleNotifToggle(e.target.checked)}
+                  disabled={!notifSupported}
+                  className="accent-brand-500 w-4 h-4 disabled:opacity-40"
+                />
+                Enable popup notifications
+              </label>
+              {!notifSupported && (
+                <p className="text-xs text-gray-400 ml-7">Not supported in this browser.</p>
+              )}
+              {notifBlocked && (
+                <p className="text-xs text-red-400 ml-7">
+                  Notifications are blocked. Allow them in your browser site settings, then try again.
+                </p>
+              )}
+            </div>
+          </div>
         </Card>
 
         <Button onClick={handleSave}>

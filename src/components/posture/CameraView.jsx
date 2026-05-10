@@ -64,6 +64,7 @@ export default function CameraView({ onPoseResults }) {
     const video = videoRef.current
     const canvas = canvasRef.current
     const ctx = canvas.getContext('2d')
+    let visHandler = null
 
     async function start() {
       let stream
@@ -99,12 +100,29 @@ export default function CameraView({ onPoseResults }) {
         return
       }
 
+      function scheduleLoop() {
+        rafRef.current = document.hidden
+          ? setTimeout(loop, 500)
+          : requestAnimationFrame(loop)
+      }
+
       async function loop() {
         if (!active) return
         await sendFrame(video)
-        rafRef.current = requestAnimationFrame(loop)
+        scheduleLoop()
       }
-      rafRef.current = requestAnimationFrame(loop)
+
+      // rAF freezes when the tab is hidden and never calls loop again.
+      // visibilitychange rescues it: cancel the stalled rAF and start a
+      // setTimeout instead, then switch back to rAF when the tab returns.
+      visHandler = () => {
+        if (!active) return
+        cancelAnimationFrame(rafRef.current)
+        clearTimeout(rafRef.current)
+        scheduleLoop()
+      }
+      document.addEventListener('visibilitychange', visHandler)
+      scheduleLoop()
     }
 
     start()
@@ -112,6 +130,8 @@ export default function CameraView({ onPoseResults }) {
     return () => {
       active = false
       cancelAnimationFrame(rafRef.current)
+      clearTimeout(rafRef.current)
+      if (visHandler) document.removeEventListener('visibilitychange', visHandler)
       stopPose()
       streamRef.current?.getTracks().forEach((t) => t.stop())
     }

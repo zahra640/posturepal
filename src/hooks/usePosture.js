@@ -1,10 +1,32 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { computeBaseline, computeScore } from '@/utils/scoring'
 import { saveSession } from '@/services/storageService'
-import { WARN_THRESHOLD, BAD_THRESHOLD, DEFAULT_SETTINGS } from '@/data/constants'
+import { DEFAULT_SETTINGS } from '@/data/constants'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 
+function playBeep() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext
+    if (!AudioContext) return
+    const ctx = new AudioContext()
+    const o = ctx.createOscillator()
+    const g = ctx.createGain()
+    o.type = 'sine'
+    o.frequency.value = 880
+    o.connect(g)
+    g.connect(ctx.destination)
+    const now = ctx.currentTime
+    g.gain.setValueAtTime(0.001, now)
+    g.gain.exponentialRampToValueAtTime(0.25, now + 0.01)
+    o.start(now)
+    g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25)
+    o.stop(now + 0.3)
+  } catch { /* ignore audio errors */ }
+}
+
 export function usePosture() {
+  const [settings] = useLocalStorage('posturepal_settings', DEFAULT_SETTINGS)
+
   const [landmarks, setLandmarks]       = useState(null)
   const [baseline, setBaseline]         = useState(null)
   const [isCalibrated, setIsCalibrated] = useState(false)
@@ -16,43 +38,23 @@ export function usePosture() {
   const timerRef      = useRef(null)
   const sessionStart  = useRef(null)
   const scores        = useRef([])
-  const baselineRef   = useRef(null)   // mirror for use inside callbacks
+  const baselineRef   = useRef(null)
   const isTrackingRef = useRef(false)
+  const settingsRef   = useRef(settings)
+  // true while score is below the warn threshold this episode
+  const isBadRef      = useRef(false)
+  // true if user dismissed the alert during the current bad episode
+  const dismissedRef  = useRef(false)
 
-  const alertRef      = useRef(null)
-  const audioCtxRef   = useRef(null)
-  const [settings]    = useLocalStorage('posturepal_settings', DEFAULT_SETTINGS)
-  const badRef        = useRef(false)
-
-  const dismissAlert = useCallback(() => setAlert(null), [])
-
-  // Keep refs in sync so pose callbacks always have the latest values
+  useEffect(() => { settingsRef.current = settings }, [settings])
   useEffect(() => { baselineRef.current = baseline }, [baseline])
   useEffect(() => { isTrackingRef.current = isTracking }, [isTracking])
-  useEffect(() => { alertRef.current = alert }, [alert])
 
-  function playBeep() {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext
-      if (!AudioContext) return
-      if (!audioCtxRef.current) audioCtxRef.current = new AudioContext()
-      const ctx = audioCtxRef.current
-      const o = ctx.createOscillator()
-      const g = ctx.createGain()
-      o.type = 'sine'
-      o.frequency.value = 880
-      o.connect(g)
-      g.connect(ctx.destination)
-      const now = ctx.currentTime
-      g.gain.setValueAtTime(0.001, now)
-      g.gain.exponentialRampToValueAtTime(0.25, now + 0.01)
-      o.start(now)
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25)
-      o.stop(now + 0.3)
-    } catch (e) {
-      // ignore audio errors
-    }
-  }
+  // dismissing suppresses the banner until posture recovers then drops again
+  const dismissAlert = useCallback(() => {
+    setAlert(null)
+    dismissedRef.current = true
+  }, [])
 
   /** Called every frame by CameraView with raw MediaPipe landmarks (or null). */
   const handlePoseResults = useCallback((rawLandmarks) => {
@@ -60,28 +62,36 @@ export function usePosture() {
     if (!rawLandmarks || !baselineRef.current || !isTrackingRef.current) return
 
     const s = computeScore(rawLandmarks, baselineRef.current)
-    if (s === null) return // key points not visible
+    if (s === null) return
 
     setScore(s)
     scores.current.push(s)
 
-    // Visual warning for warn threshold
-    if (s < WARN_THRESHOLD) {
-      if (!alertRef.current) {
-        setAlert('Heads up — your posture needs attention!')
-      }
-    }
+    const threshold = settingsRef.current.warnThreshold
+    const isBad = s < threshold
 
-    // Play sound only when entering a BAD state
-    if (s < BAD_THRESHOLD) {
-      if (!badRef.current) {
-        badRef.current = true
-        if (settings?.soundAlerts) playBeep()
+    if (isBad && !isBadRef.current) {
+      // just crossed into bad posture — show alert, play sound, send notification
+      isBadRef.current = true
+      dismissedRef.current = false
+      setAlert('Heads up — your posture needs attention!')
+      if (settingsRef.current.soundAlerts) playBeep()
+      if (settingsRef.current.pushNotifications && Notification.permission === 'granted') {
+        new Notification('PosturePal', {
+          body: 'Your posture needs attention!',
+          icon: '/pal.PNG',
+        })
       }
-    } else {
-      badRef.current = false
+    } else if (!isBad && isBadRef.current) {
+      // posture recovered — clear alert and reset so it can fire again later
+      isBadRef.current = false
+      dismissedRef.current = false
+      setAlert(null)
+    } else if (isBad && !dismissedRef.current) {
+      // still bad and not dismissed — keep alert visible
+      setAlert('Heads up — your posture needs attention!')
     }
-  }, [settings])
+  }, [])
 
   /** Snapshot current landmarks as the "good posture" baseline. */
   const calibrate = useCallback(() => {
@@ -91,6 +101,8 @@ export function usePosture() {
     setIsCalibrated(true)
     setScore(100)
     setAlert(null)
+    isBadRef.current = false
+    dismissedRef.current = false
     return true
   }, [landmarks])
 
