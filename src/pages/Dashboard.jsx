@@ -102,15 +102,15 @@ export default function Dashboard() {
       {alert && <AlertBanner message={alert} onDismiss={dismissAlert} />}
 
       {/* Main grid: camera left, stats right */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full max-w-4xl mx-auto">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-4xl mx-auto items-stretch">
         {/* Camera feed with landmark overlay */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 h-full">
           <CameraView onPoseResults={handlePoseResults} />
         </div>
 
         {/* Score + stats */}
-        <div className="flex flex-col gap-4">
-          <Card title="Posture Score">
+        <div className="flex flex-col gap-6 h-full">
+          <Card title="Posture Score" className="h-full flex flex-col justify-between">
             <PostureScore score={score ?? 0} />
             {!isCalibrated && (
               <p className="text-xs text-gray-400 text-center mt-2">
@@ -124,7 +124,7 @@ export default function Dashboard() {
             )}
           </Card>
 
-          <Card title="Session Stats">
+          <Card title="Session Stats" className="h-full flex flex-col justify-between">
             <dl className="grid grid-cols-2 gap-4">
               <Stat label="Session Time" value={formatDuration(sessionDuration)} />
               <Stat
@@ -137,20 +137,6 @@ export default function Dashboard() {
           </Card>
         </div>
       </div>
-
-      {/* Landmark legend */}
-      <Card title="Landmark Guide" className="w-full max-w-4xl mx-auto">
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <LegendItem color="#f59e0b" label="Nose" />
-          <LegendItem color="#fcd34d" label="Ears" />
-          <LegendItem color="#fcd34d" label="Shoulders" />
-          <LegendItem color="#fcd34d" label="Hips" />
-          <div className="flex items-center gap-1.5">
-            <div className="w-6 h-0.5 bg-amber-400 rounded" />
-            <span>Skeleton connections</span>
-          </div>
-        </div>
-      </Card>
     </div>
   )
 }
