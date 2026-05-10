@@ -4,6 +4,8 @@ import PostureScore from '@/components/posture/PostureScore'
 import AlertBanner from '@/components/posture/AlertBanner'
 import CameraView from '@/components/posture/CameraView'
 import { usePosture } from '@/hooks/usePosture'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
+import { DEFAULT_SETTINGS } from '@/data/constants'
 import { formatDuration } from '@/utils/formatters'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
@@ -24,6 +26,7 @@ export default function Dashboard() {
     stopTracking,
   } = usePosture()
 
+  const [settings] = useLocalStorage('posturepal_settings', DEFAULT_SETTINGS)
   const location = useLocation()
 
   useEffect(() => {
@@ -111,7 +114,7 @@ export default function Dashboard() {
         {/* Score + stats */}
         <div className="flex flex-col gap-6 h-full">
           <Card title="Posture Score" className="h-full flex flex-col justify-between">
-            <PostureScore score={score ?? 0} />
+            <PostureScore score={score ?? 0} warnThreshold={settings.warnThreshold} />
             {!isCalibrated && (
               <p className="text-xs text-gray-400 text-center mt-2">
                 Calibrate to start scoring
