@@ -1,25 +1,23 @@
 import { Link } from 'react-router-dom'
 import Button from '@/components/ui/Button'
+import logo from '../../images/logo.PNG'
+import ScrollArrow from '@/components/layout/ScrollArrow'
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center text-center gap-6 py-20">
-      <h1 className="text-4xl font-bold text-gray-900">
-        Sit smart with{' '}
-        <span className="text-brand-600">PosturePal</span>
-      </h1>
-      <p className="text-lg text-gray-500 max-w-md">
-        Real-time posture feedback so you can feel better, work longer, and
-        stay healthier at your desk.
-      </p>
+    <div className="flex flex-col items-center justify-center text-center gap-6 min-h-[calc(100vh-6rem)] px-4">
+      <img
+        src={logo}
+        alt="PosturePal"
+        className="w-full max-w-[920px] sm:max-w-[1200px] mx-auto mb-0 hero-logo object-contain"
+      />
 
-      <div className="flex gap-3">
-        <Link to="/dashboard">
-          <Button size="lg">Get Started</Button>
-        </Link>
-        <Link to="/settings">
-          <Button variant="secondary" size="lg">Settings</Button>
-        </Link>
+      <h2 className="hero-title text-3xl sm:text-4xl font-semibold text-[rgb(219,173,7)] mt-0 leading-tight">
+        Sit Smarter, Feel Better
+      </h2>
+      
+      <div className="flex flex-col items-center gap-4 justify-center mt-6">
+        <ScrollArrow to="/dashboard" label="Go to Detector" />
       </div>
     </div>
   )

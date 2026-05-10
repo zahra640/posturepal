@@ -1,14 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   html {
-    font-family: Inter, system-ui, sans-serif;
+    font-family: Poppins, Inter, system-ui, sans-serif;
+  }
+
+  :root {
+    --nav-bg: rgb(254, 248, 220);
+    --nav-line: rgb(252, 236, 179);
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-brand-50 text-gray-900 antialiased;
   }
 }
 
@@ -23,5 +30,33 @@
 
   .card {
     @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+  }
+  
+  /* Application specific helpers */
+  .app-navbar {
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--nav-line);
+    backdrop-filter: blur(6px);
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-logo {
+    transform: translateY(-40px);
+  }
+
+  /* Arrow bob animation */
+  @keyframes arrow-bob-key {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(8px); }
+    100% { transform: translateY(0); }
+  }
+
+  .arrow-bob {
+    animation: arrow-bob-key 1.2s ease-in-out infinite;
+    will-change: transform;
   }
 }
