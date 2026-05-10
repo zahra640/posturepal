@@ -1,13 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-/**
- * Drop-in replacement for useState that persists to localStorage.
- *
- * @template T
- * @param {string} key - localStorage key
- * @param {T} initialValue - default value when key is absent
- * @returns {[T, (value: T | ((prev: T) => T)) => void]}
- */
+const EVENT = 'posturepal:storage'
+
 export function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(() => {
     try {
@@ -18,10 +12,20 @@ export function useLocalStorage(key, initialValue) {
     }
   })
 
+  // Re-sync when another component on this page writes the same key
+  useEffect(() => {
+    function onUpdate(e) {
+      if (e.detail.key === key) setStoredValue(e.detail.value)
+    }
+    window.addEventListener(EVENT, onUpdate)
+    return () => window.removeEventListener(EVENT, onUpdate)
+  }, [key])
+
   function setValue(value) {
     setStoredValue(prev => {
       const next = typeof value === 'function' ? value(prev) : value
       localStorage.setItem(key, JSON.stringify(next))
+      window.dispatchEvent(new CustomEvent(EVENT, { detail: { key, value: next } }))
       return next
     })
   }
