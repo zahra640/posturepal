@@ -71,11 +71,17 @@ export function usePosture() {
     const isBad = s < threshold
 
     if (isBad && !isBadRef.current) {
-      // just crossed into bad posture — show alert and play sound
+      // just crossed into bad posture — show alert, play sound, send notification
       isBadRef.current = true
       dismissedRef.current = false
       setAlert('Heads up — your posture needs attention!')
       if (settingsRef.current.soundAlerts) playBeep()
+      if (settingsRef.current.pushNotifications && Notification.permission === 'granted') {
+        new Notification('PosturePal', {
+          body: 'Your posture needs attention!',
+          icon: '/posture-icon.svg',
+        })
+      }
     } else if (!isBad && isBadRef.current) {
       // posture recovered — clear alert and reset so it can fire again later
       isBadRef.current = false
