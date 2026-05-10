@@ -27,11 +27,11 @@ export default function Navbar() {
   return (
     <nav className="app-navbar fixed top-0 left-0 w-full z-50 shadow-sm">
       <div className="container mx-auto px-4 max-w-6xl flex items-center justify-between h-20 sm:h-24">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-8 sm:gap-12">
           <img
             src={pal}
             alt="PosturePal"
-            className="h-14 sm:h-16 w-auto max-w-[180px] object-contain rounded-lg shrink-0"
+            className="h-14 sm:h-16 w-auto max-w-[180px] object-contain rounded-lg shrink-0 mr-4 sm:mr-6"
           />
           <span className="sr-only">PosturePal</span>
         </div>
@@ -56,7 +56,7 @@ export default function Navbar() {
                     src={icon}
                     alt=""
                     aria-hidden="true"
-                    className="object-contain drop-shadow-sm h-12 sm:h-14 w-[140px] sm:w-[160px]"
+                    className="object-contain drop-shadow-sm h-12 sm:h-14 w-[130px] sm:w-[150px]"
                   />
                 ) : label === 'History' ? (
                   <svg viewBox="0 0 24 24" className="h-12 w-12 sm:h-14 sm:w-14" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -83,13 +83,13 @@ export default function Navbar() {
         </ul>
 
         {currentUser && (
-          <div className="flex items-center gap-3 ml-12 sm:ml-16">
+          <div className="flex items-center gap-6 sm:gap-8 ml-12 sm:ml-16">
             <span className="text-sm text-gray-500 hidden sm:block">
               {currentUser.displayName ?? currentUser.email}
             </span>
             <button
               onClick={handleLogout}
-              className="text-xs text-gray-400 hover:text-gray-700 transition-colors"
+              className="text-xs text-gray-400 hover:text-gray-700 transition-colors whitespace-nowrap"
             >
               Sign out
             </button>

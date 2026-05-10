@@ -3,6 +3,8 @@ import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
+import background from '../../images/background.PNG'
+import logo from '../../images/logo.PNG'
 
 export default function Login() {
   const { login, register, currentUser } = useAuth()
@@ -46,13 +48,22 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 flex flex-col items-center justify-center px-4">
-      <div className="mb-8 text-center">
-        <h1 className="text-3xl font-bold text-amber-700">PosturePal</h1>
-        <p className="text-amber-600 text-sm mt-1">Sit better. Feel better.</p>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${background})` }}
+      />
+      <div className="absolute inset-0 bg-white/10" />
+
+      <div className="mb-8 text-center relative z-10">
+        <img
+          src={logo}
+          alt="PosturePal"
+          className="h-20 sm:h-24 w-auto mx-auto object-contain mb-2"
+        />
       </div>
 
-      <Card className="w-full max-w-sm">
+      <Card className="w-full max-w-sm relative z-10">
         <h2 className="text-lg font-semibold text-gray-900 mb-5">
           {isRegister ? 'Create your account' : 'Welcome back'}
         </h2>
