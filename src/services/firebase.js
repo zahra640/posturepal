@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey:            'AIzaSyB2UPQKvZ2aSaUJXmKqB4JK6tJ_SzvV3Xw',
+  apiKey:            'AIzaSyB2UPQKvZ2aSaUJXmKqB4JK6tJ_SzvV3Xw', //public key 
   authDomain:        'posturepal-879b2.firebaseapp.com',
   projectId:         'posturepal-879b2',
   storageBucket:     'posturepal-879b2.firebasestorage.app',

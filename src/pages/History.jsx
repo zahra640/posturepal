@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import Card from '@/components/ui/Card'
 import Badge from '@/components/ui/Badge'
-import { getSessions, clearSessions } from '@/services/storageService'
+import { getSessions, clearSessions, subscribeSessions } from '@/services/storageService'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+import { db } from '@/services/firebase'
 import { useAuth } from '@/context/AuthContext'
 import { getScoreVariant, getScoreLabel, rollingAverage } from '@/utils/scoring'
 import { formatTimestamp, formatDuration } from '@/utils/formatters'
@@ -23,10 +25,28 @@ export default function History() {
   const [loading, setLoading]         = useState(true)
 
   useEffect(() => {
+    let unsubLocal = null
+    let unsubFirestore = null
     setLoading(true)
-    getSessions()
-      .then(setAllSessions)
-      .finally(() => setLoading(false))
+
+    if (currentUser) {
+      const q = query(collection(db, 'users', currentUser.uid, 'sessions'), orderBy('startedAt', 'asc'))
+      unsubFirestore = onSnapshot(q, (snap) => {
+        setAllSessions(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+        setLoading(false)
+      }, () => setLoading(false))
+    } else {
+      // guest: initial load + subscribe to in-window changes
+      getSessions()
+        .then((s) => setAllSessions(s))
+        .finally(() => setLoading(false))
+      unsubLocal = subscribeSessions((s) => setAllSessions(s))
+    }
+
+    return () => {
+      if (unsubFirestore) unsubFirestore()
+      if (unsubLocal) unsubLocal()
+    }
   }, [currentUser])
 
   const sessions     = allSessions.slice().reverse()
