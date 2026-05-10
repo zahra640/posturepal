@@ -26,14 +26,14 @@ export default function Settings() {
 
     if (Notification.permission === 'granted') {
       handleChange('pushNotifications', true)
-      new Notification('Lock In', { body: 'Popup notifications are enabled!', icon: '/pal.PNG' })
+      new Notification('PosturePal', { body: 'Popup notifications are enabled!', icon: '/images/full_pal.png' })
     } else if (Notification.permission === 'denied') {
       setNotifBlocked(true)
     } else {
       const result = await Notification.requestPermission()
       if (result === 'granted') {
         handleChange('pushNotifications', true)
-        new Notification('Lock In', { body: 'Popup notifications are enabled!', icon: '/pal.PNG' })
+        new Notification('PosturePal', { body: 'Popup notifications are enabled!', icon: '/images/full_pal.png' })
       } else {
         setNotifBlocked(true)
       }
