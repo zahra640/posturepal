@@ -8,6 +8,10 @@
   Real-time posture tracking that keeps you sitting smart — at your desk, in any tab.
 </p>
 
+<p align="center">
+  🌐 <strong>Live app:</strong> <a href="https://PROJECT_ID_REMOVED.web.app">https://PROJECT_ID_REMOVED.web.app</a>
+</p>
+
 ---
 
 ## What it does
@@ -18,7 +22,7 @@ PosturePal uses your webcam and MediaPipe pose detection to score your posture i
 
 - **Real-time pose detection** — webcam overlay with skeleton tracking via MediaPipe
 - **Personal calibration** — your score is relative to your own baseline, so camera angle and desk height don't matter
-- **Smart alerts** — banner, sound, and OS push notifications fire when you cross your threshold, clear automatically when you recover, and won't spam you mid-episode
+- **Smart alerts** — banner, sound, and OS push notifications fire when you cross your threshold and clear automatically when you recover
 - **Background tab support** — detection keeps running at 2fps when you switch tabs
 - **Session history** — score trend chart and stats saved per session
 - **Leaderboard** — global and friends-only rankings
