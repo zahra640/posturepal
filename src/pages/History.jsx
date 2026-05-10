@@ -5,6 +5,7 @@ import { getSessions, clearSessions } from '@/services/storageService'
 import { useAuth } from '@/context/AuthContext'
 import { getScoreVariant, getScoreLabel, rollingAverage } from '@/utils/scoring'
 import { formatTimestamp, formatDuration } from '@/utils/formatters'
+import historyImage from '../../images/history.png'
 
 function sessionDurationSecs(s) {
   return Math.round((s.endedAt - s.startedAt) / 1000)
@@ -50,9 +51,14 @@ export default function History() {
   const isEmpty = !loading && sessions.length === 0
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">History & Stats</h1>
+    <div className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
+      {/* Header with history image */}
+      <div className="flex items-center justify-between w-full max-w-4xl mb-4">
+        <img
+          src={historyImage}
+          alt="History & Stats"
+          className="h-16 sm:h-20 w-auto object-contain"
+        />
         {!isEmpty && !loading && (
           <button
             onClick={handleClear}
@@ -70,7 +76,7 @@ export default function History() {
       ) : isEmpty ? (
         <EmptyState />
       ) : (
-        <>
+        <div className="w-full max-w-4xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard label="Sessions" value={stats.count} />
             <StatCard label="Avg Score" value={`${stats.avgScore}`} unit="/100" accent={getScoreVariant(stats.avgScore)} />
@@ -122,7 +128,7 @@ export default function History() {
               })}
             </div>
           </Card>
-        </>
+        </div>
       )}
     </div>
   )
