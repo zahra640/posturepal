@@ -77,7 +77,7 @@ export function usePosture() {
       setAlert('Heads up — your posture needs attention!')
       if (settingsRef.current.soundAlerts) playBeep()
       if (settingsRef.current.pushNotifications && Notification.permission === 'granted') {
-        new Notification('Lock In', {
+        new Notification('PosturePal', {
           body: 'Your posture needs attention!',
           icon: '/pal.PNG',
         })
