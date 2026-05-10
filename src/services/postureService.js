@@ -11,15 +11,15 @@ export async function initPose(onResults) {
 
   const pose = new window.Pose({
     locateFile: (file) =>
-      `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+      `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`,
   })
 
   pose.setOptions({
-    modelComplexity: 1,
+    modelComplexity: 0,
     smoothLandmarks: true,
     enableSegmentation: false,
-    minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5,
+    minDetectionConfidence: 0.3,
+    minTrackingConfidence: 0.3,
   })
 
   pose.onResults(onResults)
