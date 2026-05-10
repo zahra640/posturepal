@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/logo.PNG" alt="PosturePal Logo" width="600"/>
+  <img src="images/logo.PNG" alt="PosturePal Logo" width="700"/>
 </p>
 
 <p align="center">
