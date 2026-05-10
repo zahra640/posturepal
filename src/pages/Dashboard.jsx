@@ -9,6 +9,7 @@ import { formatDuration } from '@/utils/formatters'
 export default function Dashboard() {
   const {
     score,
+    landmarks,
     isTracking,
     isCalibrated,
     sessionDuration,
@@ -25,8 +26,11 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={calibrate}>
+        <div className="flex items-center gap-2">
+          {!landmarks && (
+            <span className="text-xs text-amber-500">Waiting for pose detection…</span>
+          )}
+          <Button variant="secondary" onClick={calibrate} disabled={!landmarks}>
             {isCalibrated ? 'Recalibrate' : 'Calibrate'}
           </Button>
           {isCalibrated && (

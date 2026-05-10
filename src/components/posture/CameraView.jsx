@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { initPose, sendFrame, stopPose } from '@/services/postureService'
 
 // Landmark indices we care about
@@ -52,9 +52,12 @@ export default function CameraView({ onPoseResults }) {
   const canvasRef = useRef(null)
   const streamRef = useRef(null)
   const rafRef = useRef(null)
-  // keep latest callback without restarting the whole pipeline
   const callbackRef = useRef(onPoseResults)
   useEffect(() => { callbackRef.current = onPoseResults }, [onPoseResults])
+
+  const [camStatus, setCamStatus]     = useState('loading')  // 'loading' | 'ready' | 'error'
+  const [poseDetected, setPoseDetected] = useState(false)
+  const [errorMsg, setErrorMsg]       = useState('')
 
   useEffect(() => {
     let active = true
@@ -63,24 +66,38 @@ export default function CameraView({ onPoseResults }) {
     const ctx = canvas.getContext('2d')
 
     async function start() {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: 640, height: 480, facingMode: 'user' },
-        audio: false,
-      })
+      let stream
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 640, height: 480, facingMode: 'user' },
+          audio: false,
+        })
+      } catch {
+        if (active) { setCamStatus('error'); setErrorMsg('Camera access denied. Allow camera permission and refresh.') }
+        return
+      }
       streamRef.current = stream
       video.srcObject = stream
       await video.play()
 
-      await initPose((results) => {
-        if (!active) return
-        if (results.poseLandmarks) {
-          drawOverlay(ctx, results.poseLandmarks, canvas.width, canvas.height)
-          callbackRef.current?.(results.poseLandmarks)
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height)
-          callbackRef.current?.(null)
-        }
-      })
+      try {
+        await initPose((results) => {
+          if (!active) return
+          setCamStatus('ready')
+          if (results.poseLandmarks) {
+            setPoseDetected(true)
+            drawOverlay(ctx, results.poseLandmarks, canvas.width, canvas.height)
+            callbackRef.current?.(results.poseLandmarks)
+          } else {
+            setPoseDetected(false)
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            callbackRef.current?.(null)
+          }
+        })
+      } catch {
+        if (active) { setCamStatus('error'); setErrorMsg('Could not load pose detection. Check your internet connection and refresh.') }
+        return
+      }
 
       async function loop() {
         if (!active) return
@@ -90,7 +107,7 @@ export default function CameraView({ onPoseResults }) {
       rafRef.current = requestAnimationFrame(loop)
     }
 
-    start().catch((err) => console.error('[CameraView]', err))
+    start()
 
     return () => {
       active = false
@@ -115,10 +132,31 @@ export default function CameraView({ onPoseResults }) {
         width={640}
         height={480}
       />
-      <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-        <span className="inline-block w-2 h-2 rounded-full bg-green-400 mr-1 animate-pulse" />
-        Live
-      </div>
+
+      {/* Loading overlay */}
+      {camStatus === 'loading' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-900/80">
+          <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+          <p className="text-white/70 text-xs">Loading pose detection…</p>
+        </div>
+      )}
+
+      {/* Error overlay */}
+      {camStatus === 'error' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-gray-900/90 px-6 text-center">
+          <p className="text-red-400 text-sm font-medium">⚠ {errorMsg}</p>
+        </div>
+      )}
+
+      {/* Status badge */}
+      {camStatus === 'ready' && (
+        <div className={`absolute bottom-2 left-2 text-white text-xs px-2 py-1 rounded flex items-center gap-1.5 ${
+          poseDetected ? 'bg-green-600/80' : 'bg-amber-500/80'
+        }`}>
+          <span className={`inline-block w-2 h-2 rounded-full ${poseDetected ? 'bg-green-300 animate-pulse' : 'bg-amber-200'}`} />
+          {poseDetected ? 'Pose detected' : 'No pose detected — move into frame'}
+        </div>
+      )}
     </div>
   )
 }
