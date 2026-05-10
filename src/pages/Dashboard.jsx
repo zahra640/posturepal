@@ -27,25 +27,36 @@ export default function Dashboard() {
   const location = useLocation()
 
   useEffect(() => {
-    // Scroll to detector on mount or hash change
-    const scrollToDetector = () => {
+    // Robust scroll helper: retry until element exists (up to attempts)
+    const navbar = document.querySelector('.app-navbar')
+    const navHeight = navbar ? navbar.offsetHeight : 96
+
+    let attempts = 0
+    const maxAttempts = 12
+    const retryMs = 80
+
+    function tryScroll() {
       const el = document.getElementById('detector')
-      const navbar = document.querySelector('.app-navbar')
-      const navHeight = navbar ? navbar.offsetHeight : 96
-      
       if (el) {
-        // Scroll so element appears below navbar with padding
         const targetScroll = el.offsetTop - navHeight - 30
         window.scrollTo({ top: Math.max(0, targetScroll), behavior: 'smooth' })
-      } else {
-        // If element not found yet, scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return true
       }
+      return false
     }
-    
-    // Always scroll on mount (in case coming from home page)
-    setTimeout(scrollToDetector, 200)
-  }, [])
+
+    const id = setInterval(() => {
+      attempts += 1
+      if (tryScroll() || attempts >= maxAttempts) {
+        clearInterval(id)
+      }
+    }, retryMs)
+
+    // also try once shortly after mount
+    setTimeout(tryScroll, 120)
+
+    return () => clearInterval(id)
+  }, [/* run on mount */])
 
   return (
     <div id="detector" className="flex flex-col gap-6 items-center w-full min-h-[calc(100vh-6rem)] pt-8 sm:pt-12 px-4">
