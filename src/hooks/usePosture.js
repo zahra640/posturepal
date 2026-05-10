@@ -79,7 +79,7 @@ export function usePosture() {
       if (settingsRef.current.pushNotifications && Notification.permission === 'granted') {
         new Notification('PosturePal', {
           body: 'Your posture needs attention!',
-          icon: '/pal.PNG',
+          icon: '/images/full_pal.png',
         })
       }
     } else if (!isBad && isBadRef.current) {
