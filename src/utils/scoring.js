@@ -32,14 +32,14 @@ export function computeBaseline(landmarks) {
   const midShoulderX = (leftShoulder.x + rightShoulder.x) / 2
 
   return {
-    // How high the nose sits above the shoulder midpoint (positive = above = good)
     headHeight: midShoulderY - nose.y,
-    // Horizontal centering of nose over shoulders
     headCenter: nose.x - midShoulderX,
-    // Shoulder Y-symmetry (ideally ~0)
     shoulderTilt: Math.abs(leftShoulder.y - rightShoulder.y),
-    // Ear Y-symmetry (ideally ~0)
     earTilt: Math.abs(leftEar.y - rightEar.y),
+    // Ear-to-ear apparent distance — increases when user leans toward the camera
+    earSpan: Math.sqrt(
+      Math.pow(leftEar.x - rightEar.x, 2) + Math.pow(leftEar.y - rightEar.y, 2)
+    ),
   }
 }
 
@@ -62,9 +62,15 @@ export function computeScore(landmarks, baseline) {
   const midShoulderY = (leftShoulder.y + rightShoulder.y) / 2
   const midShoulderX = (leftShoulder.x + rightShoulder.x) / 2
 
-  // HEAD DROP — most important. Positive deviation = head has dropped from baseline.
+  // HEAD DROP — head has dropped toward shoulders (slouching)
   const headHeight = midShoulderY - nose.y
   const headDrop = Math.max(0, baseline.headHeight - headHeight)
+
+  // FORWARD LEAN — face appears larger when leaning toward screen (chin-up forward lean)
+  const earSpan = Math.sqrt(
+    Math.pow(leftEar.x - rightEar.x, 2) + Math.pow(leftEar.y - rightEar.y, 2)
+  )
+  const forwardLean = Math.max(0, earSpan - baseline.earSpan)
 
   // LATERAL LEAN — nose drifted left/right relative to shoulders
   const headCenter = nose.x - midShoulderX
@@ -78,20 +84,23 @@ export function computeScore(landmarks, baseline) {
   const earTilt = Math.abs(leftEar.y - rightEar.y)
   const earTiltDev = Math.max(0, earTilt - baseline.earTilt)
 
-  // Convert deviations to 0–1 scores. Thresholds tuned for normalized coords:
-  //   0.08 ≈ 8% of frame height — noticeable but not extreme head drop
+  // Thresholds tuned for normalized coords:
+  //   0.05 ≈ 5% of frame height for head drop (tightened from 0.08 to catch subtle slouching)
+  //   0.04 ≈ 4% ear-span growth catches leaning in without head drop
   //   0.05 ≈ 5% lateral shift
   //   0.04 ≈ 4% shoulder/ear asymmetry
-  const headDropScore    = Math.max(0, 1 - headDrop / 0.08)
+  const headDropScore    = Math.max(0, 1 - headDrop / 0.05)
+  const forwardLeanScore = Math.max(0, 1 - forwardLean / 0.04)
   const lateralScore     = Math.max(0, 1 - lateralLean / 0.05)
   const shoulderScore    = Math.max(0, 1 - shoulderTiltDev / 0.04)
   const earTiltScore     = Math.max(0, 1 - earTiltDev / 0.04)
 
   const weighted =
-    headDropScore * 0.45 +
-    lateralScore  * 0.15 +
-    shoulderScore * 0.20 +
-    earTiltScore  * 0.20
+    headDropScore    * 0.35 +
+    forwardLeanScore * 0.25 +
+    lateralScore     * 0.10 +
+    shoulderScore    * 0.15 +
+    earTiltScore     * 0.15
 
   return Math.round(Math.max(0, Math.min(100, weighted * 100)))
 }
