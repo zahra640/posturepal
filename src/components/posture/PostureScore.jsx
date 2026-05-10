@@ -1,26 +1,29 @@
-import { getScoreVariant, getScoreLabel } from '@/utils/scoring'
+const COLOR = {
+  good:    'text-posture-good',
+  warning: 'text-posture-warning',
+  bad:     'text-posture-bad',
+}
+const LABEL = {
+  good:    'Great posture',
+  warning: 'Needs improvement',
+  bad:     'Poor posture',
+}
 
-/**
- * Circular score display (0–100).
- * Colour-codes itself based on the posture quality thresholds.
- */
-export default function PostureScore({ score = 0 }) {
-  const variant = getScoreVariant(score)
-  const label   = getScoreLabel(score)
+function getVariant(score, warnThreshold) {
+  if (score >= warnThreshold) return 'good'
+  if (score >= Math.round(warnThreshold * 0.6)) return 'warning'
+  return 'bad'
+}
 
-  const colorMap = {
-    good:    'text-posture-good',
-    warning: 'text-posture-warning',
-    bad:     'text-posture-bad',
-  }
-
+export default function PostureScore({ score = 0, warnThreshold = 65 }) {
+  const variant = getVariant(score, warnThreshold)
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className={`text-7xl font-bold tabular-nums ${colorMap[variant]}`}>
+      <div className={`text-7xl font-bold tabular-nums ${COLOR[variant]}`}>
         {score}
       </div>
       <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">
-        {label}
+        {LABEL[variant]}
       </p>
     </div>
   )

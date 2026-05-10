@@ -102,7 +102,13 @@ export default function CameraView({ onPoseResults }) {
       async function loop() {
         if (!active) return
         await sendFrame(video)
-        rafRef.current = requestAnimationFrame(loop)
+        // rAF pauses when the tab is hidden; fall back to setTimeout so
+        // pose detection (and alerts) keep running in the background.
+        if (document.hidden) {
+          rafRef.current = setTimeout(loop, 500)
+        } else {
+          rafRef.current = requestAnimationFrame(loop)
+        }
       }
       rafRef.current = requestAnimationFrame(loop)
     }
@@ -112,6 +118,7 @@ export default function CameraView({ onPoseResults }) {
     return () => {
       active = false
       cancelAnimationFrame(rafRef.current)
+      clearTimeout(rafRef.current)
       stopPose()
       streamRef.current?.getTracks().forEach((t) => t.stop())
     }

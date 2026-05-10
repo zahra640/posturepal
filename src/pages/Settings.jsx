@@ -61,7 +61,7 @@ export default function Settings() {
             Reminder interval (minutes): <strong>{settings.reminderInterval}</strong>
             <input
               type="range"
-              min={5} max={60} step={5}
+              min={1} max={60} step={1}
               value={settings.reminderInterval}
               onChange={e => handleChange('reminderInterval', Number(e.target.value))}
               className="w-full mt-1 accent-brand-500"

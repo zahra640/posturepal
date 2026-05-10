@@ -11,5 +11,5 @@ export const SAMPLE_INTERVAL_MS = 3000
 export const DEFAULT_SETTINGS = {
   warnThreshold:    WARN_THRESHOLD,
   soundAlerts:      false,
-  reminderInterval: 15, // minutes
+  reminderInterval: 5, // minutes
 }
