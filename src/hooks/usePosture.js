@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react'
 import { computeBaseline, computeScore } from '@/utils/scoring'
 import { saveSession } from '@/services/storageService'
-import { WARN_THRESHOLD } from '@/data/constants'
+import { WARN_THRESHOLD, BAD_THRESHOLD, DEFAULT_SETTINGS } from '@/data/constants'
+import { useLocalStorage } from '@/hooks/useLocalStorage'
 
 export function usePosture() {
   const [landmarks, setLandmarks]       = useState(null)
@@ -18,11 +19,40 @@ export function usePosture() {
   const baselineRef   = useRef(null)   // mirror for use inside callbacks
   const isTrackingRef = useRef(false)
 
+  const alertRef      = useRef(null)
+  const audioCtxRef   = useRef(null)
+  const [settings]    = useLocalStorage('posturepal_settings', DEFAULT_SETTINGS)
+  const badRef        = useRef(false)
+
   const dismissAlert = useCallback(() => setAlert(null), [])
 
   // Keep refs in sync so pose callbacks always have the latest values
   useEffect(() => { baselineRef.current = baseline }, [baseline])
   useEffect(() => { isTrackingRef.current = isTracking }, [isTracking])
+  useEffect(() => { alertRef.current = alert }, [alert])
+
+  function playBeep() {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext
+      if (!AudioContext) return
+      if (!audioCtxRef.current) audioCtxRef.current = new AudioContext()
+      const ctx = audioCtxRef.current
+      const o = ctx.createOscillator()
+      const g = ctx.createGain()
+      o.type = 'sine'
+      o.frequency.value = 880
+      o.connect(g)
+      g.connect(ctx.destination)
+      const now = ctx.currentTime
+      g.gain.setValueAtTime(0.001, now)
+      g.gain.exponentialRampToValueAtTime(0.25, now + 0.01)
+      o.start(now)
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.25)
+      o.stop(now + 0.3)
+    } catch (e) {
+      // ignore audio errors
+    }
+  }
 
   /** Called every frame by CameraView with raw MediaPipe landmarks (or null). */
   const handlePoseResults = useCallback((rawLandmarks) => {
@@ -35,10 +65,23 @@ export function usePosture() {
     setScore(s)
     scores.current.push(s)
 
+    // Visual warning for warn threshold
     if (s < WARN_THRESHOLD) {
-      setAlert('Heads up — your posture needs attention!')
+      if (!alertRef.current) {
+        setAlert('Heads up — your posture needs attention!')
+      }
     }
-  }, [])
+
+    // Play sound only when entering a BAD state
+    if (s < BAD_THRESHOLD) {
+      if (!badRef.current) {
+        badRef.current = true
+        if (settings?.soundAlerts) playBeep()
+      }
+    } else {
+      badRef.current = false
+    }
+  }, [settings])
 
   /** Snapshot current landmarks as the "good posture" baseline. */
   const calibrate = useCallback(() => {
