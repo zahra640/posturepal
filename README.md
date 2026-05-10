@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  Real-time posture tracking that keeps you sitting smart — at your desk, in any tab.
+  Real-time posture tracking that keeps you sitting smart in any tab.
 </p>
 
 <p align="center">
-  🌐 <strong>Live app:</strong> <a href="https://PROJECT_ID_REMOVED.web.app">https://PROJECT_ID_REMOVED.web.app</a>
+  <strong>Live app:</strong> <a href="https://PROJECT_ID_REMOVED.web.app">https://PROJECT_ID_REMOVED.web.app</a>
 </p>
 
 ---
