@@ -5,12 +5,12 @@ export default {
     extend: {
       colors: {
         brand: {
-          50:  '#f0fdf4',
-          100: '#dcfce7',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
+          50:  '#fffbeb',
+          100: '#fef3c7',
+          400: '#f59e0b',
+          500: '#f59e0b',
+          600: '#d97706',
+          700: '#b45309',
         },
         posture: {
           good:    '#22c55e',

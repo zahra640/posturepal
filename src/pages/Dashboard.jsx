@@ -5,6 +5,8 @@ import AlertBanner from '@/components/posture/AlertBanner'
 import CameraView from '@/components/posture/CameraView'
 import { usePosture } from '@/hooks/usePosture'
 import { formatDuration } from '@/utils/formatters'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 
 export default function Dashboard() {
   const {
@@ -21,11 +23,21 @@ export default function Dashboard() {
     stopTracking,
   } = usePosture()
 
+  const location = useLocation()
+
+  useEffect(() => {
+    if (location.hash === '#detector') {
+      const el = document.getElementById('detector')
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+      else window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }, [location.hash])
+
   return (
-    <div className="flex flex-col gap-6">
+    <div id="detector" className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Detector</h1>
         <div className="flex items-center gap-2">
           {!landmarks && (
             <span className="text-xs text-amber-500">Waiting for pose detection…</span>
@@ -46,11 +58,11 @@ export default function Dashboard() {
 
       {/* Calibration prompt */}
       {!isCalibrated && (
-        <div className="flex items-start gap-3 bg-indigo-50 border border-indigo-200 rounded-xl p-4">
-          <span className="text-indigo-500 text-xl mt-0.5">💡</span>
+        <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <span className="text-amber-500 text-xl mt-0.5">💡</span>
           <div>
-            <p className="text-indigo-900 font-semibold text-sm">Calibrate first</p>
-            <p className="text-indigo-700 text-sm mt-0.5">
+            <p className="text-amber-900 font-semibold text-sm">Calibrate first</p>
+            <p className="text-amber-700 text-sm mt-0.5">
               Sit up straight in your normal good posture, then click <strong>Calibrate</strong>.
               This sets your personal baseline — camera angle and desk height won't matter.
             </p>
@@ -101,11 +113,11 @@ export default function Dashboard() {
       <Card title="Landmark Guide">
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
           <LegendItem color="#f59e0b" label="Nose" />
-          <LegendItem color="#6366f1" label="Ears" />
-          <LegendItem color="#6366f1" label="Shoulders" />
-          <LegendItem color="#6366f1" label="Hips" />
+          <LegendItem color="#fcd34d" label="Ears" />
+          <LegendItem color="#fcd34d" label="Shoulders" />
+          <LegendItem color="#fcd34d" label="Hips" />
           <div className="flex items-center gap-1.5">
-            <div className="w-6 h-0.5 bg-indigo-400 rounded" />
+            <div className="w-6 h-0.5 bg-amber-400 rounded" />
             <span>Skeleton connections</span>
           </div>
         </div>
