@@ -27,11 +27,20 @@ export default function Leaderboard() {
   useEffect(() => {
     if (!currentUser) return
 
-    // Global leaderboard — one-time fetch is fine, scores don't need to be live
-    getDocs(query(collection(db, 'users'), orderBy('avgScore', 'desc')))
-      .then((snap) => setGlobalUsers(snap.docs.map((d) => ({ uid: d.id, ...d.data() }))))
-      .catch(() => setError('Could not load leaderboard. Check your Firebase config.'))
-      .finally(() => setLoading(false))
+    // Global leaderboard — use real-time snapshot so scores refresh when sessions are saved
+    setLoading(true)
+    const q = query(collection(db, 'users'), orderBy('avgScore', 'desc'))
+    const unsubGlobal = onSnapshot(
+      q,
+      (snap) => {
+        setGlobalUsers(snap.docs.map((d) => ({ uid: d.id, ...d.data() })))
+        setLoading(false)
+      },
+      () => {
+        setError('Could not load leaderboard. Check your Firebase config.')
+        setLoading(false)
+      }
+    )
 
     // Friends subcollection — real-time so requests/accepts show up instantly
     const unsubscribe = onSnapshot(
@@ -57,7 +66,7 @@ export default function Leaderboard() {
       () => setError('Could not load friends.')
     )
 
-    return () => unsubscribe()
+    return () => { unsubscribe(); unsubGlobal && unsubGlobal() }
   }, [currentUser])
 
   async function handleAdd(user) {

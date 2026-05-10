@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey:            'FIREBASE_KEY_REMOVED',
+  apiKey:            'FIREBASE_KEY_REMOVED', //public key 
   authDomain:        'AUTH_DOMAIN_REMOVED',
   projectId:         'PROJECT_ID_REMOVED',
   storageBucket:     'STORAGE_BUCKET_REMOVED',
