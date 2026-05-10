@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="images/logo.PNG" alt="PosturePal Logo" width="180"/>
+  <img src="images/logo.PNG" alt="PosturePal Logo" width="200"/>
 </p>
-
-<h1 align="center">PosturePal</h1>
 
 <p align="center">
   Real-time posture tracking that keeps you sitting smart — at your desk, in any tab.
