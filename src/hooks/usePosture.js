@@ -71,7 +71,7 @@ export function usePosture() {
       startedAt: sessionStart.current,
       endedAt: Date.now(),
       avgScore,
-    })
+    }).catch(console.error)
   }, [])
 
   useEffect(() => () => clearInterval(timerRef.current), [])
