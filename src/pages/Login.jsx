@@ -19,22 +19,22 @@ export default function Login() {
 
   if (currentUser) return <Navigate to="/dashboard" replace />
 
-  function mapError(err) {
-    if (err.message.includes('auth/invalid-credential')) {
+  function mapError(errorMessage) {
+    if (errorMessage.includes('auth/invalid-credential')) {
       setError('Error: Invalid credentials.');
-    } else if (err.message.includes('auth/email-already-in-use')) {
+    } else if (errorMessage.includes('auth/email-already-in-use')) {
       setError('Error: Email already registered.');
-    } else if (err.message.includes('auth/weak-password')) {
+    } else if (errorMessage.includes('auth/weak-password')) {
       setError('Error: Password should be at least 6 characters')
-    } else if (err.message.includes('auth/network-request-failed')) {
+    } else if (errorMessage.includes('auth/network-request-failed')) {
       setError('Error: Network request failed.')
-    } else if (err.message.includes('auth/too-many-requests')) {
+    } else if (errorMessage.includes('auth/too-many-requests')) {
       setError('Error: Too many requests.')
-    } else if (err.message.includes('auth/timeout')) {
+    } else if (errorMessage.includes('auth/timeout')) {
       setError('Error: Request timed out.')
     } else {
       setError('Error with server.')
-      console.error('Submit Error', err.message);
+      console.error('Submit Error', errorMessage);
     }
   }
 
@@ -50,7 +50,7 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      mapError(err);
+      mapError(err.message);
 
     } finally {
       setLoading(false)
