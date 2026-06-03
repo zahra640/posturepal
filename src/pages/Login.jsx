@@ -19,6 +19,25 @@ export default function Login() {
 
   if (currentUser) return <Navigate to="/dashboard" replace />
 
+  function mapError(err) {
+    if (err.message.includes('auth/invalid-credential')) {
+      setError('Error: Invalid credentials.');
+    } else if (err.message.includes('auth/email-already-in-use')) {
+      setError('Error: Email already registered.');
+    } else if (err.message.includes('auth/weak-password')) {
+      setError('Error: Password should be at least 6 characters')
+    } else if (err.message.includes('auth/network-request-failed')) {
+      setError('Error: Network request failed.')
+    } else if (err.message.includes('auth/too-many-requests')) {
+      setError('Error: Too many requests.')
+    } else if (err.message.includes('auth/timeout')) {
+      setError('Error: Request timed out.')
+    } else {
+      setError('Error with server.')
+      console.error('Submit Error', err.message);
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
@@ -31,28 +50,7 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      if (err.message.includes('auth/invalid-credential')) {
-        setError('Error: Invalid credentials.');
-      }
-      else if (err.message.includes('auth/email-already-in-use')) {
-        setError('Error: Email already registered.');
-      }
-      else if (err.message.includes('auth/weak-password')) {
-        setError('Error: Password should be at least 6 characters')
-      }
-      else if (err.message.includes('auth/network-request-failed')) {
-        setError('Error: Network request failed.')
-      }
-      else if (err.message.includes('auth/too-many-requests')) {
-        setError('Error: Too many requests.')
-      }
-      else if (err.message.includes('auth/timeout')) {
-        setError('Error: Request timed out.')
-      }
-      else {
-        setError('Error with server.')
-        console.error('Submit Error', err.message);
-      }
+      mapError(err);
 
     } finally {
       setLoading(false)
