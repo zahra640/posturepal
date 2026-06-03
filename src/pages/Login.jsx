@@ -19,28 +19,20 @@ export default function Login() {
 
   if (currentUser) return <Navigate to="/dashboard" replace />
 
+  const errorPattern = /\((.+)\)/;
   const errorMap = new Map([
       ['auth/invalid-credential', 'Error: Invalid credentials'],
       ['auth/email-already-in-use', 'Error: Email already registered'],
       ['auth/weak-password', 'Error: Password should be at least 6 characters'],
       ['auth/network-request-failed', 'Error: Network request failed'],
       ['auth/too-many-requests', 'Too many requests'],
-      ['auth/timeout', 'Request timed out']
+      ['auth/timeout', 'Request timed out'],
   ]);
 
   function mapError(errorMessage) {
-    if (errorMessage.includes('auth/invalid-credential')) {
-      return 'Error: Invalid credentials.';
-    } else if (errorMessage.includes('auth/email-already-in-use')) {
-      return 'Error: Email already registered.';
-    } else if (errorMessage.includes('auth/weak-password')) {
-      return 'Error: Password should be at least 6 characters';
-    } else if (errorMessage.includes('auth/network-request-failed')) {
-      return 'Error: Network request failed.';
-    } else if (errorMessage.includes('auth/too-many-requests')) {
-      return 'Error: Too many requests.';
-    } else if (errorMessage.includes('auth/timeout')) {
-      return 'Error: Request timed out.';
+    let mappedError = errorMessage.match(errorPattern);
+    if (mappedError && errorMap.has(mappedError[1])) {
+      return errorMap.get(mappedError[1])
     } else {
       console.error('Submit Error', errorMessage);
       return 'Error with server.';
