@@ -9,9 +9,9 @@ const errorMap = new Map([
 ]);
 
 export function mapError(errorMessage) {
-    let mappedError = errorMessage.match(errorPattern);
-    if (mappedError && errorMap.has(mappedError[1])) {
-        return errorMap.get(mappedError[1])
+    let match = errorMessage.match(errorPattern);
+    if (match && errorMap.has(match[1])) {
+        return errorMap.get(match[1])
     } else {
         return 'Error with server.';
     }
