@@ -32,6 +32,7 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
+      console.error('Firebase Error', err.message);
       setError(mapError(err.message));
 
     } finally {
