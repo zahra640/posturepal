@@ -19,8 +19,16 @@ export default function Login() {
 
   if (currentUser) return <Navigate to="/dashboard" replace />
 
+  const errorMap = new Map([
+      ['auth/invalid-credential', 'Error: Invalid credentials'],
+      ['auth/email-already-in-use', 'Error: Email already registered'],
+      ['auth/weak-password', 'Error: Password should be at least 6 characters'],
+      ['auth/network-request-failed', 'Error: Network request failed'],
+      ['auth/too-many-requests', 'Too many requests'],
+      ['auth/timeout', 'Request timed out']
+  ]);
+
   function mapError(errorMessage) {
-    // change this so it's called inside of setError
     if (errorMessage.includes('auth/invalid-credential')) {
       return 'Error: Invalid credentials.';
     } else if (errorMessage.includes('auth/email-already-in-use')) {
