@@ -31,12 +31,18 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      // Strip Firebase noise from error messages
-      setError(
-        err.message
-          .replace('Firebase: ', '')
-          .replace(/ \(auth\/[^)]+\)\.?/, '')
-      )
+      console.log(err.message);
+      if (err.message.includes('auth/invalid-credential')) {
+        setError('Error: Invalid credentials.');
+      }
+      else {
+        setError(
+            err.message
+            // .replace('Firebase: ', '')
+            // .replace(/ \(auth\/[^)]+\)\.?/, '')
+        )
+      }
+
     } finally {
       setLoading(false)
     }
