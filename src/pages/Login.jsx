@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { mapError} from '@/utils/firebaseErrors.js'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import background from '../../images/background.PNG'
@@ -18,26 +19,6 @@ export default function Login() {
   const [loading, setLoading]         = useState(false)
 
   if (currentUser) return <Navigate to="/dashboard" replace />
-
-  const errorPattern = /\((.+)\)/;
-  const errorMap = new Map([
-      ['auth/invalid-credential', 'Error: Invalid credentials'],
-      ['auth/email-already-in-use', 'Error: Email already registered'],
-      ['auth/weak-password', 'Error: Password should be at least 6 characters'],
-      ['auth/network-request-failed', 'Error: Network request failed'],
-      ['auth/too-many-requests', 'Too many requests'],
-      ['auth/timeout', 'Request timed out'],
-  ]);
-
-  function mapError(errorMessage) {
-    let mappedError = errorMessage.match(errorPattern);
-    if (mappedError && errorMap.has(mappedError[1])) {
-      return errorMap.get(mappedError[1])
-    } else {
-      console.error('Submit Error', errorMessage);
-      return 'Error with server.';
-    }
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
