@@ -31,16 +31,12 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      console.log(err.message);
       if (err.message.includes('auth/invalid-credential')) {
         setError('Error: Invalid credentials.');
       }
       else {
-        setError(
-            err.message
-            // .replace('Firebase: ', '')
-            // .replace(/ \(auth\/[^)]+\)\.?/, '')
-        )
+        setError('Error with server.')
+        console.error('Submit Error', err.message);
       }
 
     } finally {
