@@ -20,21 +20,22 @@ export default function Login() {
   if (currentUser) return <Navigate to="/dashboard" replace />
 
   function mapError(errorMessage) {
+    // change this so it's called inside of setError
     if (errorMessage.includes('auth/invalid-credential')) {
-      setError('Error: Invalid credentials.');
+      return 'Error: Invalid credentials.';
     } else if (errorMessage.includes('auth/email-already-in-use')) {
-      setError('Error: Email already registered.');
+      return 'Error: Email already registered.';
     } else if (errorMessage.includes('auth/weak-password')) {
-      setError('Error: Password should be at least 6 characters')
+      return 'Error: Password should be at least 6 characters';
     } else if (errorMessage.includes('auth/network-request-failed')) {
-      setError('Error: Network request failed.')
+      return 'Error: Network request failed.';
     } else if (errorMessage.includes('auth/too-many-requests')) {
-      setError('Error: Too many requests.')
+      return 'Error: Too many requests.';
     } else if (errorMessage.includes('auth/timeout')) {
-      setError('Error: Request timed out.')
+      return 'Error: Request timed out.';
     } else {
-      setError('Error with server.')
       console.error('Submit Error', errorMessage);
+      return 'Error with server.';
     }
   }
 
@@ -50,7 +51,7 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      mapError(err.message);
+      setError(mapError(err.message));
 
     } finally {
       setLoading(false)
