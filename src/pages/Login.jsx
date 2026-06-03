@@ -34,6 +34,9 @@ export default function Login() {
       if (err.message.includes('auth/invalid-credential')) {
         setError('Error: Invalid credentials.');
       }
+      else if (err.message.includes('auth/email-already-in-use')) {
+        setError('Error: Email already registered.');
+      }
       else {
         setError('Error with server.')
         console.error('Submit Error', err.message);
