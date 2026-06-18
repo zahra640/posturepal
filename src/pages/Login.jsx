@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, Navigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { mapError} from '@/utils/firebaseErrors.js'
 import Card from '@/components/ui/Card'
 import Button from '@/components/ui/Button'
 import background from '../../images/background.PNG'
@@ -31,12 +32,9 @@ export default function Login() {
       }
       navigate('/dashboard')
     } catch (err) {
-      // Strip Firebase noise from error messages
-      setError(
-        err.message
-          .replace('Firebase: ', '')
-          .replace(/ \(auth\/[^)]+\)\.?/, '')
-      )
+      console.error('Firebase Error', err.message);
+      setError(mapError(err.message));
+
     } finally {
       setLoading(false)
     }
